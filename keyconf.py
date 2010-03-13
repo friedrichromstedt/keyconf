@@ -20,10 +20,13 @@
 
 # Last changed: 2010 Mar 13
 # Developed since: Mar 2010
-# File version: 0.1.0b
+# File version: 0.1.1b
+
+__version__ = (0, 1, 1)
 
 """A module providing a framework for configuration of components using 
 arguments to a top-level function."""
+
 
 class Configuration(dict):
 	"""Holds a number of parameters.  Read-only attributes:
