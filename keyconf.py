@@ -20,9 +20,9 @@
 
 # Last changed: 2010 Mar 13
 # Developed since: Mar 2010
-# File version: 0.2.0b
+# File version: 0.2.1b
 
-__version__ = (0, 2, 0)
+__version__ = (0, 2, 1)
 
 """A module providing a framework for configuration of components using 
 arguments to a top-level function."""
@@ -147,3 +147,21 @@ class Configuration(dict):
 			return self._get_config(key)
 		else:
 			return target.get_config(key)
+
+	# Config check methods.
+
+	def _is_configured(self, key):
+		"""Called to actually *find out* if a key is configured."""
+
+		return key in self
+	
+	def is_configured(self, key):
+		"""Return True if KEY exists, else False."""
+
+		# Find target.
+		(key_stripped, target) = self._get_target(key)
+
+		if target is self:
+			return self._is_configured(key)
+		else:
+			return target.is_configured(key_stripped)

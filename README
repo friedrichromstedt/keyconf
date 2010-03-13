@@ -51,6 +51,12 @@ And some more features:
 >>> component
 {'leaf': 'yellow'}
 
+# Test for keys.
+>>> top.is_configured('sub_ill')
+False
+>>> component.is_configured('leaf')
+True
+
 
 Components can also be added later by:
 
