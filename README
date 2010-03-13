@@ -36,20 +36,21 @@ Now, let's use the {component} in another Configuration:
 {'leaf': 'yellow'}
 
 
-And some more features:
+Overwriting and deletion of keys:
 
 # Configure the leaf again, but leave the value unchanged.
 >>> component.configure(leaf = None)
 >>> component['leaf']
 'yellow'
 
-# Configure another key.
+# Delete an key, first create one, than delete it.
 >>> component.configure(ill = 'faint green')
-
-# Delete the second key.
 >>> top.unconfigure('sub_ill')
 >>> component
 {'leaf': 'yellow'}
+
+
+Test whether some key is configured or not:
 
 # Test for keys.
 >>> top.is_configured('sub_ill')
@@ -58,10 +59,20 @@ False
 True
 
 
-Components can also be added later by:
+Components can be added later by:
 
 >>> top.add_components(**components)
 
 and can be deleted by:
 
 >>> top.remove_components(*names)  .
+
+
+Aliases make life easier or less troublesome sometimes:
+
+>>> top.set_alises(alias = 'sub_leaf')
+>>> top.is_configured('alias')
+True
+>>> top.unset_aliases('alias')
+>>> top.is_configured('alias')
+False

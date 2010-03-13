@@ -20,9 +20,9 @@
 
 # Last changed: 2010 Mar 13
 # Developed since: Mar 2010
-# File version: 0.2.1b
+# File version: 0.3.0b
 
-__version__ = (0, 2, 1)
+__version__ = (0, 3, 0)
 
 """A module providing a framework for configuration of components using 
 arguments to a top-level function."""
@@ -48,14 +48,20 @@ class Configuration(dict):
 		
 		dict.__init__(self)
 
+		# The list of sub-Configurations.
 		self.components = components
+
+		# The list of direct key replacements.
+		#
+		# Aliases are not forwarded.
+		self.aliases = {}
 	
 	#
 	# Component methods ...
 	#
 
 	def add_components(self, **components):
-		"""Add components **COMPONENTS."""
+		"""Add components **COMPONENTS = {name: component}."""
 
 		self.components.update(components)
 
@@ -65,15 +71,39 @@ class Configuration(dict):
 		
 		for name in names:
 			del self.components[name]
+
+	#
+	# Alias methods ...
+	#
+
+	def set_aliases(self, **aliases):
+		"""Set aliases ALIASES = {alias: target key}."""
+
+		for (alias, target_key) in aliases.items():
+			self.aliases[alias] = target_key
+
+	def unset_aliases(self, *aliases):
+		"""Delete aliases ALIASES.  Nonexistent aliases fail."""
+
+		for alias in aliases:
+			del self.aliases[alias]
 		
 	#
 	# Key methods ...
 	#
 
 	def _get_target(self, key):
-		"""Returns (key_stripped, key_component) for the key KEY.  Tries to
+		"""Returns (key_target, key_component) for the key KEY.  Tries to
 		forward KEY to some component.  If the KEY cannot be forwarded, the
-		tuple (key, self) will be returned."""
+		tuple (key, self) will be returned.  Also resolves aliases."""
+
+		# First, search the aliases ...
+
+		for (alias, target_key) in self.aliases.items():
+			if key == alias:
+				key = target_key
+
+		# Second, try to forward the de-aliased key ...
 
 		for (name, component) in self.components.items():
 			prefix = name + '_'
@@ -82,7 +112,8 @@ class Configuration(dict):
 				key_stripped = key.replace(prefix, '', 1)
 				return (key_stripped, component)
 
-		# The key could not be forwarded.
+		# The key could not be forwarded ...
+
 		return (key, self)
 	
 	# Config methods.
@@ -101,12 +132,12 @@ class Configuration(dict):
 
 		for (key, value) in kwargs.items():
 			# Find the target.
-			(key_stripped, target) = self._get_target(key)
+			(key_target, target) = self._get_target(key)
 			
 			if target is self:
-				self._configure(key, value)
+				self._configure(key_target, value)
 			else:
-				target.configure(**{key_stripped: value})
+				target.configure(**{key_target: value})
 	
 	# Unconfig methods.
 
@@ -122,12 +153,12 @@ class Configuration(dict):
 
 		for key in args:
 			# Find the target.
-			(key_stripped, target) = self._get_target(key)
+			(key_target, target) = self._get_target(key)
 
 			if target is self:
-				self._unconfigure(key)
+				self._unconfigure(key_target)
 			else:
-				target.unconfigure(key_stripped)
+				target.unconfigure(key_target)
 
 	# Config retrieval methods.
 
@@ -141,12 +172,12 @@ class Configuration(dict):
 		the call will raise KeyError."""
 
 		# Find the target.
-		(key_stripped, target) = self._get_target(key)
+		(key_target, target) = self._get_target(key)
 
 		if target is self:
-			return self._get_config(key)
+			return self._get_config(key_target)
 		else:
-			return target.get_config(key)
+			return target.get_config(key_target)
 
 	# Config check methods.
 
@@ -159,9 +190,9 @@ class Configuration(dict):
 		"""Return True if KEY exists, else False."""
 
 		# Find target.
-		(key_stripped, target) = self._get_target(key)
+		(key_target, target) = self._get_target(key)
 
 		if target is self:
-			return self._is_configured(key)
+			return self._is_configured(key_target)
 		else:
-			return target.is_configured(key_stripped)
+			return target.is_configured(key_target)

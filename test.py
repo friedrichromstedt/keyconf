@@ -69,6 +69,12 @@ class Test(unittest.TestCase):
 		top.unconfigure('sub_ill')
 		self.assert_(component == {'leaf': 'yellow'})
 
+		top.set_aliases(alias = 'sub_leaf')
+		self.assert_(top.get_config('alias') == 'yellow')
+
+		top.unset_aliases('alias')
+		self.assert_(not top.is_configured('alias'))
+
 		# Test passed.
 
 if __name__ == '__main__':
