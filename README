@@ -54,8 +54,8 @@ And some more features:
 
 Components can also be added later by:
 
->>> top.add_component(**components)
+>>> top.add_components(**components)
 
 and can be deleted by:
 
->>> top.remove_component(*names)  .
+>>> top.remove_components(*names)  .
