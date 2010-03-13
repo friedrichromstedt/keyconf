@@ -20,9 +20,9 @@
 
 # Last changed: 2010 Mar 13
 # Developed since: Mar 2010
-# File version: 0.1.1b
+# File version: 0.2.0b
 
-__version__ = (0, 1, 1)
+__version__ = (0, 2, 0)
 
 """A module providing a framework for configuration of components using 
 arguments to a top-level function."""
@@ -50,6 +50,10 @@ class Configuration(dict):
 
 		self.components = components
 	
+	#
+	# Component methods ...
+	#
+
 	def add_components(self, **components):
 		"""Add components **COMPONENTS."""
 
@@ -61,6 +65,33 @@ class Configuration(dict):
 		
 		for name in names:
 			del self.components[name]
+		
+	#
+	# Key methods ...
+	#
+
+	def _get_target(self, key):
+		"""Returns (key_stripped, key_component) for the key KEY.  Tries to
+		forward KEY to some component.  If the KEY cannot be forwarded, the
+		tuple (key, self) will be returned."""
+
+		for (name, component) in self.components.items():
+			prefix = name + '_'
+			if key.startswith(prefix):
+				# Forward the argument.
+				key_stripped = key.replace(prefix, '', 1)
+				return (key_stripped, component)
+
+		# The key could not be forwarded.
+		return (key, self)
+	
+	# Config methods.
+
+	def _configure(self, key, value):
+		"""Called to actually *set* a key."""
+
+		if value is not None:
+			self[key] = value
 
 	def configure(self, **kwargs):
 		"""Update the Configuration and its components with all kwargs given.  
@@ -69,39 +100,50 @@ class Configuration(dict):
 		# Iterate through the kwarguments ...
 
 		for (key, value) in kwargs.items():
-			# Try to forward the argument.
-			forwarded = False
-			for (name, component) in self.components.items():
-				prefix = name + '_'
-				if key.startswith(prefix):
-					# Forward the argument:
-					key_stripped = key.replace(prefix, '', 1)
-					component.configure(**{key_stripped: value})
-					forwarded = True
-					break
+			# Find the target.
+			(key_stripped, target) = self._get_target(key)
+			
+			if target is self:
+				self._configure(key, value)
+			else:
+				target.configure(**{key_stripped: value})
+	
+	# Unconfig methods.
 
-			if not forwarded:
-				# The argument hasn't been forwarded.
-				if value is not None:
-					self[key] = value
+	def _unconfigure(self, key):
+		"""Called to actually *unset* a key."""
+
+		if key in self:
+			del self[key]
 
 	def unconfigure(self, *args):
 		"""Delete the args given from the dictionary.  If they do not exist,
 		they will be silently ignored."""
 
 		for key in args:
-			# Try to forward the argument.
-			forwarded = False
-			for (name, component) in self.components.items():
-				prefix = name + '_'
-				if key.startswith(prefix):
-					# Forward the argument:
-					key_stripped = key.replace(prefix, '', 1)
-					component.unconfigure(key_stripped)
-					forwarded = True
-					break
+			# Find the target.
+			(key_stripped, target) = self._get_target(key)
 
-			if not forwarded:
-				# The argument hasn't been forwarded.
-				if key in self:
-					del self[key]
+			if target is self:
+				self._unconfigure(key)
+			else:
+				target.unconfigure(key_stripped)
+
+	# Config retrieval methods.
+
+	def _get_config(self, key):
+		"""Called to actually *retrieve* a key's configuration."""
+
+		return self[key]
+
+	def get_config(self, key):
+		"""Retrieve the Configuration's key KEY.  If the KEY doesn't exist,
+		the call will raise KeyError."""
+
+		# Find the target.
+		(key_stripped, target) = self._get_target(key)
+
+		if target is self:
+			return self._get_config(key)
+		else:
+			return target.get_config(key)
