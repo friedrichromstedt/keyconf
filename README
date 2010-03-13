@@ -1,4 +1,4 @@
-A module proviging a framework for configuration of components using 
+A module providing a framework for configuration of components using 
 arguments to a top-level function.
 
 The module is released under MIT, the license is included in the source file.
