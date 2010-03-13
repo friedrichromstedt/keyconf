@@ -1,0 +1,58 @@
+This module is released under MIT, the license is included in the source file.
+
+
+Example:
+
+>>> import keyconf
+>>> component = keyconf.Configuration()
+
+# Configure a key.
+>>> component.configure(leaf = 'green')
+>>> component['leaf']
+'green'
+>>> component
+{'leaf': 'green'}
+
+
+Now, let's use the {component} in another Configuration:
+
+>>> top = keyconf.Configuration(sub = component)
+
+# The component is hidden.
+>>> top
+{}
+
+# Configure ordinary keys in {top}.
+>>> top.configure(stem = 'brown')
+
+# Configure {component} by calls to {top}.
+>>> top.configure(sub_leaf = 'yellow')
+
+# The key has been forwarded.
+>>> component
+{'leaf': 'yellow'}
+
+
+And some more features:
+
+# Configure the leaf again, but leave the value unchanged.
+>>> component.configure(leaf = None)
+>>> component['leaf']
+'yellow'
+
+# Configure another key.
+>>> component.configure(ill = 'faint green')
+
+# Delete the second key.
+>>> top.unconfigure('sub_ill')
+>>> component
+{'leaf': 'yellow'}
+
+
+Components can also be added later by:
+
+>>> top.add_component(**components)
+
+and can be deleted by:
+
+>>> top.remove_component(*names)  .
