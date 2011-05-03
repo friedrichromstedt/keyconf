@@ -1,0 +1,14 @@
+Name: keyconf
+Author: Friedrich Romstedt
+AuthorEMail: friedrichromstedt@gmail.com
+Summary: Configuring nested elements with compound key names.
+Version: 0.3.1
+License: MIT
+
+Library:
+    Modules: keyconf
+
+ExtraSourceFiles:
+    LICENSE,
+    test.py,
+    README

@@ -18,11 +18,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-# Last changed: 2010 Mar 13
 # Developed since: Mar 2010
-# File version: 0.3.0b
-
-__version__ = (0, 3, 0)
+__version_tuple__ = (0, 3, 0, 'released')
+__version_string__ = '0.3.0'
+__version_date__ = '2011-05-03'
 
 """A module providing a framework for configuration of components using 
 arguments to a top-level function."""
