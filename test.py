@@ -29,53 +29,53 @@ import unittest
 
 
 class Test(unittest.TestCase):
-	def test(self):
-		component = keyconf.Configuration()
+    def test(self):
+        component = keyconf.Configuration()
 
-		# Configure a key.
-		component.configure(leaf = 'green')
-		self.assert_(component['leaf'] == 'green')
-		self.assert_(component == {'leaf': 'green'})
+        # Configure a key.
+        component.configure(leaf = 'green')
+        self.assert_(component['leaf'] == 'green')
+        self.assert_(component == {'leaf': 'green'})
 
-		# Create the top Configuration.
-		top = keyconf.Configuration(sub = component)
+        # Create the top Configuration.
+        top = keyconf.Configuration(sub = component)
 
-		# The component is hidden.
-		self.assert_(top == {})
+        # The component is hidden.
+        self.assert_(top == {})
 
-		# Configure ordinary keys in {top}.
-		top.configure(stem = 'brown')
-		self.assert_(top == {'stem': 'brown'})
+        # Configure ordinary keys in {top}.
+        top.configure(stem = 'brown')
+        self.assert_(top == {'stem': 'brown'})
 
-		self.assert_(top.is_configured('sub_leaf'))
-		self.assert_(top.is_configured('stem'))
-		self.assert_(not top.is_configured('sub_none'))
-		self.assert_(not top.is_configured('none'))
+        self.assert_(top.is_configured('sub_leaf'))
+        self.assert_(top.is_configured('stem'))
+        self.assert_(not top.is_configured('sub_none'))
+        self.assert_(not top.is_configured('none'))
 
-		# Configure {component} by calls to {top}.
-		top.configure(sub_leaf = 'yellow')
-		self.assert_(component == {'leaf': 'yellow'})
-		self.assert_(top == {'stem': 'brown'})
+        # Configure {component} by calls to {top}.
+        top.configure(sub_leaf = 'yellow')
+        self.assert_(component == {'leaf': 'yellow'})
+        self.assert_(top == {'stem': 'brown'})
 
-		# Configure the leaf again, but leave the value unchanged.
-		component.configure(leaf = None)
-		self.assert_(component == {'leaf': 'yellow'})
+        # Configure the leaf again, but leave the value unchanged.
+        component.configure(leaf = None)
+        self.assert_(component == {'leaf': 'yellow'})
 
-		# Configure another key.
-		component.configure(ill = 'faint green')
-		self.assert_(component == {'leaf': 'yellow', 'ill': 'faint green'})
+        # Configure another key.
+        component.configure(ill = 'faint green')
+        self.assert_(component == {'leaf': 'yellow', 'ill': 'faint green'})
 
-		# Delete the second key.
-		top.unconfigure('sub_ill')
-		self.assert_(component == {'leaf': 'yellow'})
+        # Delete the second key.
+        top.unconfigure('sub_ill')
+        self.assert_(component == {'leaf': 'yellow'})
 
-		top.set_aliases(alias = 'sub_leaf')
-		self.assert_(top.get_config('alias') == 'yellow')
+        top.set_aliases(alias = 'sub_leaf')
+        self.assert_(top.get_config('alias') == 'yellow')
 
-		top.unset_aliases('alias')
-		self.assert_(not top.is_configured('alias'))
+        top.unset_aliases('alias')
+        self.assert_(not top.is_configured('alias'))
 
-		# Test passed.
+        # Test passed.
 
 if __name__ == '__main__':
-	unittest.main()
+    unittest.main()
